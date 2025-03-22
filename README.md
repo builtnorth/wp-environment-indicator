@@ -1,6 +1,6 @@
 # WP Environment Indicator
 
-A simple WordPress environment indicator that shows the current environment (development, staging, production) in the admin bar.
+A simple composer package that shows the current WordPress environment (development, staging, production) in the admin bar.
 
 ![WP Environment Indicator Screenshot](https://i.imgur.com/iWINX5I.png)
 
@@ -14,7 +14,7 @@ composer require builtnorth/wp-environment-indicator
 
 ### Basic Usage
 
-Simply initialize the plugin in your theme or plugin:
+Initialize the plugin in your theme or plugin:
 
 ```php
 use WPEnvironmentIndicator\App;
@@ -25,10 +25,10 @@ $indicator->init();
 
 ### Custom Configuration
 
-You can customize the environment colors and labels:
+Customize the environment colors and labels:
 
 ```php
-use WPEnvironmentIndicator\Plugin;
+use WPEnvironmentIndicator\App;
 
 $indicator = new App();
 

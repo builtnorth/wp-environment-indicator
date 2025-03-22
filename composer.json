@@ -12,6 +12,10 @@
 		{
 			"name": "Built North",
 			"homepage": "https://builtnorth.co"
+		},
+		{
+			"name": "Dan Northern",
+			"homepage": "https://dannorthern.com"
 		}
 	],
 	"require": {
