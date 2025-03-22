@@ -2,6 +2,8 @@
 
 A simple WordPress environment indicator that shows the current environment (development, staging, production) in the admin bar.
 
+![WP Environment Indicator Screenshot](https://i.imgur.com/iWINX5I.png)
+
 ## Installation
 
 ```bash
