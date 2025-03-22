@@ -1,0 +1,20 @@
+{
+	"name": "builtnorth/wp-environment-indicator",
+	"description": "A simple WordPress environment indicator for the admin bar",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"autoload": {
+		"psr-4": {
+			"WPEnvironmentIndicator\\": "inc/"
+		}
+	},
+	"authors": [
+		{
+			"name": "Built North",
+			"homepage": "https://builtnorth.co"
+		}
+	],
+	"require": {
+		"php": ">=8.0"
+	}
+}
