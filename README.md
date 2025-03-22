@@ -15,9 +15,9 @@ composer require builtnorth/wp-environment-indicator
 Simply initialize the plugin in your theme or plugin:
 
 ```php
-use BuiltNorth\WPEnvironmentIndicator\Plugin;
+use WPEnvironmentIndicator\App;
 
-$indicator = new Plugin();
+$indicator = new App();
 $indicator->init();
 ```
 
@@ -26,9 +26,9 @@ $indicator->init();
 You can customize the environment colors and labels:
 
 ```php
-use BuiltNorth\WPEnvironmentIndicator\Plugin;
+use WPEnvironmentIndicator\Plugin;
 
-$indicator = new Plugin();
+$indicator = new App();
 
 // Customize environment settings
 $indicator->set_config([
