@@ -14,15 +14,15 @@ class App
 	 */
 	private array $config = [
 		'development' => [
-			'color' => '#4f9fe4',
+			'color' => '#3858e9',
 			'text' => 'Development'
 		],
 		'staging' => [
-			'color' => '#e38a1e',
+			'color' => '#db7800',
 			'text' => 'Staging'
 		],
 		'production' => [
-			'color' => '#82cd2a',
+			'color' => '#0cb034',
 			'text' => 'Production'
 		]
 	];
@@ -99,9 +99,10 @@ class App
 
 			#wpadminbar #wp-admin-bar-environment-indicator .env-dot {
 				display: inline-block;
-				width: 8px;
-				height: 8px;
+				width: 6px;
+				height: 6px;
 				border-radius: 50%;
+				border: 1px solid #ffffff;
 				background: <?php echo esc_attr($config['color']); ?>;
 				margin-right: 2px;
 				margin-top: -2px;
