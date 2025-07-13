@@ -17,10 +17,8 @@ composer require builtnorth/wp-environment-indicator
 Initialize the plugin in your theme or plugin:
 
 ```php
-use WPEnvironmentIndicator\App;
-
-$indicator = new App();
-$indicator->init();
+$indicator = new BuiltNorth\WPEnvironmentIndicator\App();
+$indicator->boot();
 ```
 
 ### Custom Configuration
@@ -49,16 +47,16 @@ $indicator->init();
 
 ## Features
 
--   Automatically detects environment using `WP_ENVIRONMENT_TYPE`
--   Shows environment indicator in admin bar
--   Customizable colors and labels
--   Only visible to users with `manage_options` capability
--   Lightweight and efficient
+- Automatically detects environment using `WP_ENVIRONMENT_TYPE`
+- Shows environment indicator in admin bar
+- Customizable colors and labels
+- Only visible to users with `manage_options` capability
+- Lightweight and efficient
 
 ## Requirements
 
--   PHP 8.0 or higher
--   WordPress 5.0 or higher
+- PHP 8.0 or higher
+- WordPress 5.0 or higher
 
 ## License
 
