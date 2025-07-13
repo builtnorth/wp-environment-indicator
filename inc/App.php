@@ -1,9 +1,16 @@
 <?php
 
-namespace WPEnvironmentIndicator;
+namespace BuiltNorth\WPEnvironmentIndicator;
 
 class App
 {
+	/**
+	 * Holds the single instance of this class.
+	 *
+	 * @var App|null
+	 */
+	protected static $instance = null;
+
 	/**
 	 * @var string The current environment
 	 */
@@ -28,9 +35,32 @@ class App
 	];
 
 	/**
-	 * Initialize the plugin
+	 * Get the single instance of this class.
+	 *
+	 * @return App
 	 */
-	public function init(): void
+	public static function instance()
+	{
+		if (is_null(self::$instance)) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+
+	/**
+	 * Private constructor to prevent direct instantiation.
+	 */
+	private function __construct()
+	{
+		// Constructor does nothing - initialization happens in boot()
+	}
+
+
+	/**
+	 * Boot the environment indicator.
+	 * This method should be called after getting the instance.
+	 */
+	public function boot(): void
 	{
 		$this->environment = $this->detect_environment();
 
