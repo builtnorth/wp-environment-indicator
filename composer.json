@@ -9,6 +9,11 @@
 			"BuiltNorth\\WPEnvironmentIndicator\\": "inc/"
 		}
 	},
+	"autoload-dev": {
+		"psr-4": {
+			"BuiltNorth\\WPEnvironmentIndicator\\Tests\\": "tests/"
+		}
+	},
 	"authors": [
 		{
 			"name": "Built North",
@@ -21,5 +26,14 @@
 	],
 	"require": {
 		"php": ">=8.0"
+	},
+	"require-dev": {
+		"10up/wp_mock": "^1.0",
+		"mockery/mockery": "^1.5",
+		"phpunit/phpunit": "^9.0"
+	},
+	"scripts": {
+		"test": "vendor/bin/phpunit",
+		"test:coverage": "vendor/bin/phpunit --coverage-text"
 	}
 }
