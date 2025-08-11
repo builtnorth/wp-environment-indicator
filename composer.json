@@ -2,7 +2,6 @@
 	"name": "builtnorth/wp-environment-indicator",
 	"description": "A simple WordPress environment indicator for the admin bar",
 	"type": "library",
-	"version": "1.0.0",
 	"license": "GPL-2.0-or-later",
 	"autoload": {
 		"psr-4": {
@@ -34,14 +33,23 @@
 		"builtnorth/coding-standards": "*"
 	},
 	"scripts": {
-		"test": "vendor/bin/phpunit",
-		"test:coverage": "vendor/bin/phpunit --coverage-text",
-		"lint": "vendor/bin/phpcs",
-		"lint:fix": "vendor/bin/phpcbf"
+		"test": "phpunit",
+		"test:unit": "phpunit --testsuite Unit",
+		"test:coverage": "phpunit --coverage-html coverage",
+		"lint": "phpcs",
+		"lint:fix": "phpcbf",
+		"phpcs": "phpcs",
+		"phpcs:summary": "phpcs --report=summary",
+		"phpcbf": "phpcbf",
+		"phpcompat": "phpcs -p inc --standard=PHPCompatibility --runtime-set testVersion 8.1-"
 	},
 	"config": {
+		"optimize-autoloader": true,
+		"sort-packages": true,
 		"allow-plugins": {
 			"dealerdirect/phpcodesniffer-composer-installer": true
 		}
-	}
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true
 }
