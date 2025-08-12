@@ -103,7 +103,7 @@ jobs:
           fi
           
           # Format changelog
-          CHANGELOG="## What's Changed in ${{ env.PACKAGE_DISPLAY_NAME }} ${{ steps.version.outputs.version }}"
+          CHANGELOG="## What's Changed"
           CHANGELOG="$CHANGELOG"$'\n\n'
           
           # Group commits by type
