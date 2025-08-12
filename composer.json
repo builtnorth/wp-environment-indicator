@@ -2,7 +2,7 @@
   "name": "builtnorth/wp-environment-indicator",
   "description": "A simple WordPress environment indicator for the admin bar",
   "type": "library",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "license": "GPL-2.0-or-later",
   "autoload": {
     "psr-4": {
