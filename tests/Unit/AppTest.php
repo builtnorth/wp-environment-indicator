@@ -75,6 +75,13 @@ class AppTest extends TestCase {
 		WP_Mock::userFunction( 'current_user_can' )
 			->with( 'manage_options' )
 			->andReturn( true );
+		WP_Mock::userFunction( 'apply_filters' )
+			->with( 'builtnorth/wp_environment_indicator/show', true, 'development' )
+			->andReturnUsing(
+				function ( $tag, $value ) {
+					return $value;
+				}
+			);
 		WP_Mock::userFunction( 'esc_html' )
 			->with( 'Development' )
 			->andReturn( 'Development' );
@@ -138,6 +145,12 @@ class AppTest extends TestCase {
 		WP_Mock::userFunction( 'current_user_can' )
 			->with( 'manage_options' )
 			->andReturn( false );
+		WP_Mock::userFunction( 'apply_filters' )
+			->andReturnUsing(
+				function ( $tag, $value ) {
+					return $value;
+				}
+			);
 
 		$admin_bar = Mockery::mock( 'WP_Admin_Bar' );
 		$admin_bar->shouldNotReceive( 'add_node' );
@@ -160,6 +173,13 @@ class AppTest extends TestCase {
 		WP_Mock::userFunction( 'current_user_can' )
 			->with( 'manage_options' )
 			->andReturn( true );
+		WP_Mock::userFunction( 'apply_filters' )
+			->with( 'builtnorth/wp_environment_indicator/show', true, 'development' )
+			->andReturnUsing(
+				function ( $tag, $value ) {
+					return $value;
+				}
+			);
 		WP_Mock::userFunction( 'esc_attr' )
 			->with( '#3858e9' )
 			->andReturn( '#3858e9' );
