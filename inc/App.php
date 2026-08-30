@@ -14,7 +14,7 @@ class App
 	/**
 	 * @var string The current environment
 	 */
-	private string $environment;
+	private string $environment = '';
 
 	/**
 	 * @var array Environment configurations
@@ -85,11 +85,33 @@ class App
 	}
 
 	/**
+	 * Whether the environment indicator should be shown to the current user.
+	 */
+	private function should_show_indicator(): bool
+	{
+		if (!is_admin_bar_showing()) {
+			return false;
+		}
+
+		/**
+		 * Filters whether the environment indicator is visible to the current user.
+		 *
+		 * @param bool   $show        Whether to show the indicator. Default checks `manage_options`.
+		 * @param string $environment Current environment slug.
+		 */
+		return (bool) apply_filters(
+			'builtnorth/wp_environment_indicator/show',
+			current_user_can('manage_options'),
+			$this->environment
+		);
+	}
+
+	/**
 	 * Add the environment indicator to the admin bar
 	 */
 	public function add_environment_menu($admin_bar): void
 	{
-		if (!is_admin_bar_showing() || !current_user_can('manage_options')) {
+		if (!$this->should_show_indicator()) {
 			return;
 		}
 
@@ -110,7 +132,7 @@ class App
 	 */
 	public function add_styles(): void
 	{
-		if (!is_admin_bar_showing() || !current_user_can('manage_options')) {
+		if (!$this->should_show_indicator()) {
 			return;
 		}
 
