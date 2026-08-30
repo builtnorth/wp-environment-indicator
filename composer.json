@@ -50,7 +50,7 @@
 			"dealerdirect/phpcodesniffer-composer-installer": true
 		}
 	},
-	"minimum-stability": "dev",
+	"minimum-stability": "stable",
 	"prefer-stable": true,
 	"extra": {
 		"branch-alias": {

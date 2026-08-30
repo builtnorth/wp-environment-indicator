@@ -45,12 +45,23 @@ $indicator->set_config([
 $indicator->init();
 ```
 
+### Visibility
+
+By default, the indicator is only shown to users with the `manage_options` capability. Use the `builtnorth/wp_environment_indicator/show` filter to change who can see it:
+
+```php
+// Show to editors and above.
+add_filter( 'builtnorth/wp_environment_indicator/show', function ( $show, $environment ) {
+    return current_user_can( 'edit_posts' );
+}, 10, 2 );
+```
+
 ## Features
 
 - Automatically detects environment using `WP_ENVIRONMENT_TYPE`
 - Shows environment indicator in admin bar
 - Customizable colors and labels
-- Only visible to users with `manage_options` capability
+- Only visible to users with `manage_options` capability by default (customizable via filter)
 - Lightweight and efficient
 
 ## Requirements
