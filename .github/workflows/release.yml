@@ -26,4 +26,5 @@ jobs:
       version: ${{ inputs.version }}
       prerelease: ${{ inputs.prerelease }}
     permissions:
+    secrets: inherit
       contents: write
