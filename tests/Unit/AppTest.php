@@ -11,7 +11,6 @@ use BuiltNorth\WPEnvironmentIndicator\App;
 use BuiltNorth\WPEnvironmentIndicator\Tests\TestCase;
 use WP_Mock;
 use Mockery;
-use Brain\Monkey\Functions;
 
 /**
  * Test the App class
