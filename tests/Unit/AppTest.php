@@ -22,12 +22,40 @@ class AppTest extends TestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		
+
 		// Reset the singleton instance before each test
 		$reflection = new \ReflectionClass( App::class );
-		$instance = $reflection->getProperty( 'instance' );
+		$instance   = $reflection->getProperty( 'instance' );
 		$instance->setAccessible( true );
 		$instance->setValue( null, null );
+	}
+
+	/**
+	 * Stub wp_get_environment_type for the current test.
+	 *
+	 * @param string $env Environment slug to return.
+	 */
+	private function mock_environment_type( string $env ): void {
+		WP_Mock::userFunction( 'wp_get_environment_type' )->andReturn( $env );
+	}
+
+	/**
+	 * Stub the common "show indicator" gate as allowed.
+	 *
+	 * @param string $environment Environment slug passed to the filter.
+	 */
+	private function mock_show_allowed( string $environment = 'development' ): void {
+		WP_Mock::userFunction( 'is_admin_bar_showing' )->andReturn( true );
+		WP_Mock::userFunction( 'current_user_can' )
+			->with( 'manage_options' )
+			->andReturn( true );
+		WP_Mock::userFunction( 'apply_filters' )
+			->with( 'builtnorth/wp_environment_indicator/show', true, $environment )
+			->andReturnUsing(
+				static function ( $tag, $value ) {
+					return $value;
+				}
+			);
 	}
 
 	/**
@@ -45,10 +73,7 @@ class AppTest extends TestCase {
 	 * Test boot method with environment
 	 */
 	public function test_boot_with_environment() {
-		// Define the constant if not already defined
-		if ( ! defined( 'WP_ENVIRONMENT_TYPE' ) ) {
-			define( 'WP_ENVIRONMENT_TYPE', 'development' );
-		}
+		$this->mock_environment_type( 'development' );
 
 		WP_Mock::expectActionAdded( 'admin_bar_menu', [ App::instance(), 'add_environment_menu' ], 100 );
 		WP_Mock::expectActionAdded( 'admin_head', [ App::instance(), 'add_styles' ] );
@@ -62,25 +87,46 @@ class AppTest extends TestCase {
 	}
 
 	/**
+	 * Test boot with local environment registers hooks
+	 */
+	public function test_boot_with_local_environment() {
+		$this->mock_environment_type( 'local' );
+
+		WP_Mock::expectActionAdded( 'admin_bar_menu', [ App::instance(), 'add_environment_menu' ], 100 );
+		WP_Mock::expectActionAdded( 'admin_head', [ App::instance(), 'add_styles' ] );
+		WP_Mock::expectActionAdded( 'wp_head', [ App::instance(), 'add_styles' ] );
+
+		$app = App::instance();
+		$app->boot();
+
+		$this->assertEquals( 'local', $app->get_environment() );
+		$this->assertConditionsMet();
+	}
+
+	/**
+	 * Test boot with unknown environment does not register hooks
+	 */
+	public function test_boot_with_unknown_environment() {
+		$this->mock_environment_type( 'qa' );
+
+		WP_Mock::expectActionNotAdded( 'admin_bar_menu', [ App::instance(), 'add_environment_menu' ] );
+		WP_Mock::expectActionNotAdded( 'admin_head', [ App::instance(), 'add_styles' ] );
+		WP_Mock::expectActionNotAdded( 'wp_head', [ App::instance(), 'add_styles' ] );
+
+		$app = App::instance();
+		$app->boot();
+
+		$this->assertSame( '', $app->get_environment() );
+		$this->assertConditionsMet();
+	}
+
+	/**
 	 * Test add environment menu
 	 */
 	public function test_add_environment_menu() {
-		// Ensure the constant is defined
-		if ( ! defined( 'WP_ENVIRONMENT_TYPE' ) ) {
-			define( 'WP_ENVIRONMENT_TYPE', 'development' );
-		}
+		$this->mock_environment_type( 'development' );
+		$this->mock_show_allowed( 'development' );
 
-		WP_Mock::userFunction( 'is_admin_bar_showing' )->andReturn( true );
-		WP_Mock::userFunction( 'current_user_can' )
-			->with( 'manage_options' )
-			->andReturn( true );
-		WP_Mock::userFunction( 'apply_filters' )
-			->with( 'builtnorth/wp_environment_indicator/show', true, 'development' )
-			->andReturnUsing(
-				function ( $tag, $value ) {
-					return $value;
-				}
-			);
 		WP_Mock::userFunction( 'esc_html' )
 			->with( 'Development' )
 			->andReturn( 'Development' );
@@ -105,10 +151,7 @@ class AppTest extends TestCase {
 	 * Test environment detection
 	 */
 	public function test_get_environment() {
-		// Ensure the constant is defined
-		if ( ! defined( 'WP_ENVIRONMENT_TYPE' ) ) {
-			define( 'WP_ENVIRONMENT_TYPE', 'development' );
-		}
+		$this->mock_environment_type( 'development' );
 
 		$app = App::instance();
 		$app->boot();
@@ -117,36 +160,83 @@ class AppTest extends TestCase {
 	}
 
 	/**
-	 * Test custom config
+	 * Test set_config merges partial overrides and affects menu title
 	 */
 	public function test_set_config() {
+		$this->mock_environment_type( 'development' );
+		$this->mock_show_allowed( 'development' );
+
+		WP_Mock::userFunction( 'esc_html' )
+			->with( 'Development' )
+			->andReturn( 'Development' );
+
+		$admin_bar = Mockery::mock( 'WP_Admin_Bar' );
+		$admin_bar->shouldReceive( 'add_node' )
+			->once()
+			->with( Mockery::on( static function ( $args ) {
+				return strpos( $args['title'], 'Development' ) !== false
+					&& strpos( $args['title'], 'Custom' ) === false;
+			} ) );
+
 		$app = App::instance();
-		
-		$custom_config = [
-			'custom' => [
-				'color' => '#ff0000',
-				'text' => 'Custom Environment'
+		$app->set_config(
+			[
+				'development' => [
+					'color' => '#ff0000',
+				],
 			]
-		];
-		
-		$app->set_config( $custom_config );
-		
-		// We can't directly test the private property, but we can verify
-		// the method doesn't throw an error
-		$this->assertTrue( true );
+		);
+		$app->boot();
+		$app->add_environment_menu( $admin_bar );
+
+		$this->assertConditionsMet();
+	}
+
+	/**
+	 * Test set_config can replace the label
+	 */
+	public function test_set_config_replaces_text() {
+		$this->mock_environment_type( 'development' );
+		$this->mock_show_allowed( 'development' );
+
+		WP_Mock::userFunction( 'esc_html' )
+			->with( 'Custom Dev' )
+			->andReturn( 'Custom Dev' );
+
+		$admin_bar = Mockery::mock( 'WP_Admin_Bar' );
+		$admin_bar->shouldReceive( 'add_node' )
+			->once()
+			->with( Mockery::on( static function ( $args ) {
+				return strpos( $args['title'], 'Custom Dev' ) !== false;
+			} ) );
+
+		$app = App::instance();
+		$app->set_config(
+			[
+				'development' => [
+					'text' => 'Custom Dev',
+				],
+			]
+		);
+		$app->boot();
+		$app->add_environment_menu( $admin_bar );
+
+		$this->assertConditionsMet();
 	}
 
 	/**
 	 * Test add_environment_menu doesn't add node when user lacks capability
 	 */
 	public function test_add_environment_menu_no_capability() {
+		$this->mock_environment_type( 'development' );
+
 		WP_Mock::userFunction( 'is_admin_bar_showing' )->andReturn( true );
 		WP_Mock::userFunction( 'current_user_can' )
 			->with( 'manage_options' )
 			->andReturn( false );
 		WP_Mock::userFunction( 'apply_filters' )
 			->andReturnUsing(
-				function ( $tag, $value ) {
+				static function ( $tag, $value ) {
 					return $value;
 				}
 			);
@@ -155,6 +245,49 @@ class AppTest extends TestCase {
 		$admin_bar->shouldNotReceive( 'add_node' );
 
 		$app = App::instance();
+		$app->boot();
+		$app->add_environment_menu( $admin_bar );
+
+		$this->assertConditionsMet();
+	}
+
+	/**
+	 * Test filter can deny visibility even when capability would allow
+	 */
+	public function test_add_environment_menu_filter_denies() {
+		$this->mock_environment_type( 'development' );
+
+		WP_Mock::userFunction( 'is_admin_bar_showing' )->andReturn( true );
+		WP_Mock::userFunction( 'current_user_can' )
+			->with( 'manage_options' )
+			->andReturn( true );
+		WP_Mock::onFilter( 'builtnorth/wp_environment_indicator/show' )
+			->with( true, 'development' )
+			->reply( false );
+
+		$admin_bar = Mockery::mock( 'WP_Admin_Bar' );
+		$admin_bar->shouldNotReceive( 'add_node' );
+
+		$app = App::instance();
+		$app->boot();
+		$app->add_environment_menu( $admin_bar );
+
+		$this->assertConditionsMet();
+	}
+
+	/**
+	 * Test indicator is hidden when admin bar is not showing
+	 */
+	public function test_add_environment_menu_admin_bar_hidden() {
+		$this->mock_environment_type( 'development' );
+
+		WP_Mock::userFunction( 'is_admin_bar_showing' )->andReturn( false );
+
+		$admin_bar = Mockery::mock( 'WP_Admin_Bar' );
+		$admin_bar->shouldNotReceive( 'add_node' );
+
+		$app = App::instance();
+		$app->boot();
 		$app->add_environment_menu( $admin_bar );
 
 		$this->assertConditionsMet();
@@ -164,21 +297,9 @@ class AppTest extends TestCase {
 	 * Test add_styles outputs CSS
 	 */
 	public function test_add_styles() {
-		if ( ! defined( 'WP_ENVIRONMENT_TYPE' ) ) {
-			define( 'WP_ENVIRONMENT_TYPE', 'development' );
-		}
+		$this->mock_environment_type( 'development' );
+		$this->mock_show_allowed( 'development' );
 
-		WP_Mock::userFunction( 'is_admin_bar_showing' )->andReturn( true );
-		WP_Mock::userFunction( 'current_user_can' )
-			->with( 'manage_options' )
-			->andReturn( true );
-		WP_Mock::userFunction( 'apply_filters' )
-			->with( 'builtnorth/wp_environment_indicator/show', true, 'development' )
-			->andReturnUsing(
-				function ( $tag, $value ) {
-					return $value;
-				}
-			);
 		WP_Mock::userFunction( 'esc_attr' )
 			->with( '#3858e9' )
 			->andReturn( '#3858e9' );

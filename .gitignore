@@ -12,6 +12,10 @@ _srcMaps/
 /vendor
 composer.lock
 
+# PHPUnit
+.phpunit.cache/
+.phpunit.result.cache
+
 # Log files
 *.log
 

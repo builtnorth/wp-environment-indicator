@@ -1,6 +1,6 @@
 # WP Environment Indicator
 
-A simple composer package that shows the current WordPress environment (development, staging, production) in the admin bar.
+A simple composer package that shows the current WordPress environment (local, development, staging, production) in the admin bar.
 
 ![WP Environment Indicator Screenshot](https://i.imgur.com/iWINX5I.png)
 
@@ -14,36 +14,38 @@ composer require builtnorth/wp-environment-indicator
 
 ### Basic Usage
 
-Initialize the plugin in your theme or plugin:
+Initialize the package in your theme or plugin:
 
 ```php
-$indicator = new BuiltNorth\WPEnvironmentIndicator\App();
-$indicator->boot();
+use BuiltNorth\WPEnvironmentIndicator\App;
+
+App::instance()->boot();
 ```
 
 ### Custom Configuration
 
-Customize the environment colors and labels:
+Customize the environment colors and labels. Partial overrides keep other keys:
 
 ```php
-use WPEnvironmentIndicator\App;
+use BuiltNorth\WPEnvironmentIndicator\App;
 
-$indicator = new App();
+$indicator = App::instance();
 
-// Customize environment settings
 $indicator->set_config([
-    'development' => [
-        'color' => '#00ff00',
-        'text' => 'Local Dev'
-    ],
-    'staging' => [
-        'color' => '#ffaa00',
-        'text' => 'QA Environment'
-    ]
+	'development' => [
+		'color' => '#00ff00',
+		'text' => 'Local Dev',
+	],
+	'staging' => [
+		'color' => '#ffaa00',
+		'text' => 'QA Environment',
+	],
 ]);
 
-$indicator->init();
+$indicator->boot();
 ```
+
+Call `set_config()` before `boot()` if you add a custom environment slug that must match the detected type.
 
 ### Visibility
 
@@ -52,13 +54,14 @@ By default, the indicator is only shown to users with the `manage_options` capab
 ```php
 // Show to editors and above.
 add_filter( 'builtnorth/wp_environment_indicator/show', function ( $show, $environment ) {
-    return current_user_can( 'edit_posts' );
+	return current_user_can( 'edit_posts' );
 }, 10, 2 );
 ```
 
 ## Features
 
-- Automatically detects environment using `WP_ENVIRONMENT_TYPE`
+- Detects environment via `wp_get_environment_type()` (falls back to the `WP_ENVIRONMENT_TYPE` constant)
+- Built-in labels for `local`, `development`, `staging`, and `production`
 - Shows environment indicator in admin bar
 - Customizable colors and labels
 - Only visible to users with `manage_options` capability by default (customizable via filter)
@@ -66,8 +69,8 @@ add_filter( 'builtnorth/wp_environment_indicator/show', function ( $show, $envir
 
 ## Requirements
 
-- PHP 8.0 or higher
-- WordPress 5.0 or higher
+- PHP 8.1 or higher
+- WordPress 5.5 or higher (for `wp_get_environment_type()`)
 
 ## License
 

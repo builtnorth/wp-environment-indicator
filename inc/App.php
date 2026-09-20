@@ -20,6 +20,10 @@ class App
 	 * @var array Environment configurations
 	 */
 	private array $config = [
+		'local' => [
+			'color' => '#7c3aed',
+			'text' => 'Local'
+		],
 		'development' => [
 			'color' => '#3858e9',
 			'text' => 'Development'
@@ -72,10 +76,19 @@ class App
 	}
 
 	/**
-	 * Detect the current environment
+	 * Detect the current environment.
+	 *
+	 * Prefers WordPress core's `wp_get_environment_type()` (constant, getenv, then
+	 * default). Falls back to the `WP_ENVIRONMENT_TYPE` constant when the function
+	 * is unavailable (e.g. very early bootstrap in tests).
 	 */
 	private function detect_environment(): string
 	{
+		if (\function_exists('wp_get_environment_type')) {
+			$env = \wp_get_environment_type();
+			return isset($this->config[$env]) ? $env : '';
+		}
+
 		if (\defined('WP_ENVIRONMENT_TYPE')) {
 			$env = \WP_ENVIRONMENT_TYPE;
 			return isset($this->config[$env]) ? $env : '';
@@ -115,7 +128,7 @@ class App
 			return;
 		}
 
-		$config = $this->config[$this->environment];
+		$config = $this->config[$this->environment] ?? $this->config['development'];
 
 		$admin_bar->add_node([
 			'id'    => 'environment-indicator',
@@ -173,10 +186,21 @@ class App
 	}
 
 	/**
-	 * Set custom environment configuration
+	 * Set custom environment configuration.
+	 *
+	 * Per-environment arrays are merged recursively so a partial override
+	 * (e.g. only `color`) keeps existing `text` / defaults.
 	 */
 	public function set_config(array $config): void
 	{
-		$this->config = array_merge($this->config, $config);
+		foreach ($config as $env => $settings) {
+			if (!\is_array($settings)) {
+				continue;
+			}
+			$this->config[$env] = \array_merge(
+				$this->config[$env] ?? [],
+				$settings
+			);
+		}
 	}
 }
