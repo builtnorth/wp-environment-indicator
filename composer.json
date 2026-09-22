@@ -5,10 +5,10 @@
 	"license": "GPL-2.0-or-later",
 	"autoload": {
 		"files": [
-			"bootstrap/register.php"
+			"register.php"
 		],
 		"psr-4": {
-			"BuiltNorth\\WPEnvironmentIndicator\\": "inc/"
+			"BuiltNorth\\WPEnvironmentIndicator\\": "inc/classes/"
 		}
 	},
 	"autoload-dev": {

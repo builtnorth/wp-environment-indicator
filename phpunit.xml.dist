@@ -14,7 +14,7 @@
     <coverage cacheDirectory=".phpunit.cache/code-coverage"
               processUncoveredFiles="true">
         <include>
-            <directory suffix=".php">inc</directory>
+            <directory suffix=".php">inc/classes</directory>
         </include>
         <exclude>
             <directory suffix=".php">tests</directory>
