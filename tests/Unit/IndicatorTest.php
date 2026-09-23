@@ -1,21 +1,21 @@
 <?php
 /**
- * Tests for the App class
+ * Tests for the Indicator class
  *
  * @package BuiltNorth\WPEnvironmentIndicator\Tests\Unit
  */
 
 namespace BuiltNorth\WPEnvironmentIndicator\Tests\Unit;
 
-use BuiltNorth\WPEnvironmentIndicator\App;
+use BuiltNorth\WPEnvironmentIndicator\Indicator;
 use BuiltNorth\WPEnvironmentIndicator\Tests\TestCase;
 use WP_Mock;
 use Mockery;
 
 /**
- * Test the App class
+ * Test the Indicator class
  */
-class AppTest extends TestCase {
+class IndicatorTest extends TestCase {
 
 	/**
 	 * Set up before each test
@@ -24,7 +24,7 @@ class AppTest extends TestCase {
 		parent::setUp();
 
 		// Reset the singleton instance before each test
-		$reflection = new \ReflectionClass( App::class );
+		$reflection = new \ReflectionClass( Indicator::class );
 		$instance   = $reflection->getProperty( 'instance' );
 		$instance->setAccessible( true );
 		$instance->setValue( null, null );
@@ -62,11 +62,11 @@ class AppTest extends TestCase {
 	 * Test singleton instance
 	 */
 	public function test_singleton_instance() {
-		$instance1 = App::instance();
-		$instance2 = App::instance();
+		$instance1 = Indicator::instance();
+		$instance2 = Indicator::instance();
 
 		$this->assertSame( $instance1, $instance2 );
-		$this->assertInstanceOf( App::class, $instance1 );
+		$this->assertInstanceOf( Indicator::class, $instance1 );
 	}
 
 	/**
@@ -75,11 +75,11 @@ class AppTest extends TestCase {
 	public function test_boot_with_environment() {
 		$this->mock_environment_type( 'development' );
 
-		WP_Mock::expectActionAdded( 'admin_bar_menu', [ App::instance(), 'add_environment_menu' ], 100 );
-		WP_Mock::expectActionAdded( 'admin_head', [ App::instance(), 'add_styles' ] );
-		WP_Mock::expectActionAdded( 'wp_head', [ App::instance(), 'add_styles' ] );
+		WP_Mock::expectActionAdded( 'admin_bar_menu', [ Indicator::instance(), 'add_environment_menu' ], 100 );
+		WP_Mock::expectActionAdded( 'admin_head', [ Indicator::instance(), 'add_styles' ] );
+		WP_Mock::expectActionAdded( 'wp_head', [ Indicator::instance(), 'add_styles' ] );
 
-		$app = App::instance();
+		$app = Indicator::instance();
 		$app->boot();
 
 		$this->assertEquals( 'development', $app->get_environment() );
@@ -92,11 +92,11 @@ class AppTest extends TestCase {
 	public function test_boot_with_local_environment() {
 		$this->mock_environment_type( 'local' );
 
-		WP_Mock::expectActionAdded( 'admin_bar_menu', [ App::instance(), 'add_environment_menu' ], 100 );
-		WP_Mock::expectActionAdded( 'admin_head', [ App::instance(), 'add_styles' ] );
-		WP_Mock::expectActionAdded( 'wp_head', [ App::instance(), 'add_styles' ] );
+		WP_Mock::expectActionAdded( 'admin_bar_menu', [ Indicator::instance(), 'add_environment_menu' ], 100 );
+		WP_Mock::expectActionAdded( 'admin_head', [ Indicator::instance(), 'add_styles' ] );
+		WP_Mock::expectActionAdded( 'wp_head', [ Indicator::instance(), 'add_styles' ] );
 
-		$app = App::instance();
+		$app = Indicator::instance();
 		$app->boot();
 
 		$this->assertEquals( 'local', $app->get_environment() );
@@ -109,11 +109,11 @@ class AppTest extends TestCase {
 	public function test_boot_with_unknown_environment() {
 		$this->mock_environment_type( 'qa' );
 
-		WP_Mock::expectActionNotAdded( 'admin_bar_menu', [ App::instance(), 'add_environment_menu' ] );
-		WP_Mock::expectActionNotAdded( 'admin_head', [ App::instance(), 'add_styles' ] );
-		WP_Mock::expectActionNotAdded( 'wp_head', [ App::instance(), 'add_styles' ] );
+		WP_Mock::expectActionNotAdded( 'admin_bar_menu', [ Indicator::instance(), 'add_environment_menu' ] );
+		WP_Mock::expectActionNotAdded( 'admin_head', [ Indicator::instance(), 'add_styles' ] );
+		WP_Mock::expectActionNotAdded( 'wp_head', [ Indicator::instance(), 'add_styles' ] );
 
-		$app = App::instance();
+		$app = Indicator::instance();
 		$app->boot();
 
 		$this->assertSame( '', $app->get_environment() );
@@ -140,7 +140,7 @@ class AppTest extends TestCase {
 					   $args['parent'] === 'top-secondary';
 			} ) );
 
-		$app = App::instance();
+		$app = Indicator::instance();
 		$app->boot();
 		$app->add_environment_menu( $admin_bar );
 
@@ -153,7 +153,7 @@ class AppTest extends TestCase {
 	public function test_get_environment() {
 		$this->mock_environment_type( 'development' );
 
-		$app = App::instance();
+		$app = Indicator::instance();
 		$app->boot();
 
 		$this->assertEquals( 'development', $app->get_environment() );
@@ -178,7 +178,7 @@ class AppTest extends TestCase {
 					&& strpos( $args['title'], 'Custom' ) === false;
 			} ) );
 
-		$app = App::instance();
+		$app = Indicator::instance();
 		$app->set_config(
 			[
 				'development' => [
@@ -210,7 +210,7 @@ class AppTest extends TestCase {
 				return strpos( $args['title'], 'Custom Dev' ) !== false;
 			} ) );
 
-		$app = App::instance();
+		$app = Indicator::instance();
 		$app->set_config(
 			[
 				'development' => [
@@ -244,7 +244,7 @@ class AppTest extends TestCase {
 		$admin_bar = Mockery::mock( 'WP_Admin_Bar' );
 		$admin_bar->shouldNotReceive( 'add_node' );
 
-		$app = App::instance();
+		$app = Indicator::instance();
 		$app->boot();
 		$app->add_environment_menu( $admin_bar );
 
@@ -268,7 +268,7 @@ class AppTest extends TestCase {
 		$admin_bar = Mockery::mock( 'WP_Admin_Bar' );
 		$admin_bar->shouldNotReceive( 'add_node' );
 
-		$app = App::instance();
+		$app = Indicator::instance();
 		$app->boot();
 		$app->add_environment_menu( $admin_bar );
 
@@ -286,7 +286,7 @@ class AppTest extends TestCase {
 		$admin_bar = Mockery::mock( 'WP_Admin_Bar' );
 		$admin_bar->shouldNotReceive( 'add_node' );
 
-		$app = App::instance();
+		$app = Indicator::instance();
 		$app->boot();
 		$app->add_environment_menu( $admin_bar );
 
@@ -304,7 +304,7 @@ class AppTest extends TestCase {
 			->with( '#3858e9' )
 			->andReturn( '#3858e9' );
 
-		$app = App::instance();
+		$app = Indicator::instance();
 		$app->boot();
 
 		ob_start();

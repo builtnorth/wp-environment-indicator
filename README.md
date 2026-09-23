@@ -17,9 +17,9 @@ composer require builtnorth/wp-environment-indicator
 Initialize the package in your theme or plugin:
 
 ```php
-use BuiltNorth\WPEnvironmentIndicator\App;
+use BuiltNorth\WPEnvironmentIndicator\Indicator;
 
-App::instance()->boot();
+Indicator::instance()->boot();
 ```
 
 ### Custom Configuration
@@ -27,9 +27,9 @@ App::instance()->boot();
 Customize the environment colors and labels. Partial overrides keep other keys:
 
 ```php
-use BuiltNorth\WPEnvironmentIndicator\App;
+use BuiltNorth\WPEnvironmentIndicator\Indicator;
 
-$indicator = App::instance();
+$indicator = Indicator::instance();
 
 $indicator->set_config([
 	'development' => [
